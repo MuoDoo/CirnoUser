@@ -2,7 +2,7 @@
 #![no_main]
 
 #[macro_use]
-extern crate user_lib;
+extern crate cirno_user;
 
 use riscv::register::sstatus::{self, SPP};
 
