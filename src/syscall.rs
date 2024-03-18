@@ -32,6 +32,7 @@ const SYSCALL_FRAMEBUFFER: usize = 2000;
 const SYSCALL_FRAMEBUFFER_FLUSH: usize = 2001;
 const SYSCALL_EVENT_GET: usize = 3000;
 const SYSCALL_KEY_PRESSED: usize = 3001;
+const SYSCAL_LS : usize = 20010706;
 
 fn syscall(id: usize, args: [usize; 3]) -> isize {
     let mut ret: isize;
@@ -192,4 +193,8 @@ pub fn sys_event_get() -> isize {
 
 pub fn sys_key_pressed() -> isize {
     syscall(SYSCALL_KEY_PRESSED, [0, 0, 0])
+}
+
+pub fn sys_ls() -> isize {
+    syscall(SYSCAL_LS, [0, 0, 0])
 }

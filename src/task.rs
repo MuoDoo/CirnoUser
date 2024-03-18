@@ -80,3 +80,6 @@ pub fn waittid(tid: usize) -> isize {
         }
     }
 }
+pub fn ls() -> isize {
+    sys_ls()
+}

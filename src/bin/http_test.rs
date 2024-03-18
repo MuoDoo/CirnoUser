@@ -10,7 +10,7 @@ extern crate alloc;
 
 // use http://localhost:6201/ to access the http server
 
-use cirno_user::{accept, listen, read, write};
+use cirno_user::{accept, close, listen, open, read, write};
 
 // get url from the tcp request list.
 fn get_url_from_tcp_request(req: &[u8]) -> String {
@@ -23,6 +23,19 @@ fn get_url_from_tcp_request(req: &[u8]) -> String {
     }
 
     String::from_utf8_lossy(&req[4..index]).to_string()
+}
+fn get_page_from_file(file_name:&str) -> String {
+    print!("get page from file: {}\n", file_name);
+    let mut buf = vec![0u8; 8126];
+    let fd = open(file_name, cirno_user::OpenFlags::RDONLY);
+    if fd == -1 {
+        panic!("Error occurred when opening file");
+    }
+    let siz = read(fd as usize, &mut buf) as usize;
+    close(fd as usize);
+    println!("read {} bytes", siz);
+    let content = core::str::from_utf8(&buf[..siz as usize]).unwrap();
+    content.to_string()
 }
 
 // just receive GET requests
@@ -44,75 +57,23 @@ fn handle_tcp_client(client_fd: usize) -> bool {
     let url = get_url_from_tcp_request(&buf);
 
     if url == "/close" {
-        let content = r#"<!DOCTYPE html>
-        <html>
-        <head>
-        <title></title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
-        </head>
-        <body>
-        
-        <div class="container-fluid p-5 bg-danger text-white text-center">
-        <h1>server closed</h1>
-        </div>
-        </body>
-        </html>"#;
+        println!("close the server");
+        // let fd: isize = open("server_close.html", cirno_user::OpenFlags::RDONLY);
+        // if fd == -1 {
+        //     panic!("Error occurred when opening file");
+        // }
+        // let siz = read(fd as usize, &mut page_buf) as usize;
+        // close(fd as usize);
+        // println!("read {} bytes", siz);
+        // let content = core::str::from_utf8(&&page_buf[..siz]).unwrap();
+        // get_page_from_file("server_close.html", buf);
+        let content = get_page_from_file("server_close.html\0");
         let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnecion: Close\r\n\r\n{}", content.len(),content);
         write(client_fd, response.as_bytes());
         // terminate the connection immediately.
         return true;
     }
-
-    let content = r#"<!DOCTYPE html>
-        <html>
-        <head>
-        <title></title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
-        </head>
-        <body>
-        
-        <div class="container-fluid p-5 bg-primary text-white text-center">
-        <h1>CirnoOS</h1>
-        <p>CirnoOS 是一个 基于 RISC-V 架构的 类 Unix 内核.</p> 
-        </div>
-        
-        <div class="container mt-5">
-        <div class="row">
-            <div class="col-sm-4">
-            <h3>Rust</h3>
-            <p>Rust</p>
-            <p>Rust是一门系统编程语言，专注于安全，尤其是并发安全，支持函数式和命令式以及泛型等编程范式的多范式语言</p>
-            </div>
-            <div class="col-sm-4">
-            <h3>仓库地址</h3>        
-            <p>repo url</p>
-            <p>https://github.com/MuoDoo/CirnoOS</p>
-            </div>
-            <div class="col-sm-4">
-            <h3>琪露诺</h3>
-            <p>Cirno</p>
-            <p>琪露诺是同人游戏开发社团上海爱丽丝幻乐团作品<东方Project>中登场的架空人物</p>
-            </div>
-        </div>
-        </div>
-        <div class="container p-5 text-black text-center d-grid col-sm-4">
-        <p>点击下列按钮即可关闭服务器。</p>
-        <button type="button" class="btn btn-warning btn-block p-3" onclick="close_server()">关闭 server</button>
-        </div>
-        <script>
-        function close_server() {
-            location.href = "/close";
-        }
-        </script>
-        </body>
-        </html>"#;
-
+    let content = get_page_from_file("CirnoPage.html\0");
     let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnecion: Close\r\n\r\n{}", content.len(),content);
 
     // write a response
