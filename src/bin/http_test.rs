@@ -8,7 +8,7 @@ extern crate cirno_user;
 #[macro_use]
 extern crate alloc;
 
-// use http://localhost:6201/ to access the http server
+// http://localhost:6201/ access the http server
 
 use cirno_user::{accept, close, listen, open, read, write};
 

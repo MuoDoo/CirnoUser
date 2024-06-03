@@ -13,7 +13,7 @@ macro_rules! color_text {
 #[no_mangle]
 pub fn main() -> i32 {
     println!(
-        "{}{}{}{}{} {}{}{}{} {}{}{}{}{}{}",
+        "{}{}{}{}{} {}{}{}{}{}{}{}{}{}{}",
         color_text!("H", 31),
         color_text!("e", 32),
         color_text!("l", 33),

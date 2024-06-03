@@ -12,6 +12,7 @@ pub const VIRTGPU_LEN: usize = (VIRTGPU_XRES * VIRTGPU_YRES * 4) as usize;
 pub fn framebuffer() -> isize {
     sys_framebuffer()
 }
+
 pub fn framebuffer_flush() -> isize {
     sys_framebuffer_flush()
 }
